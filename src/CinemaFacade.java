@@ -29,8 +29,6 @@ public class CinemaFacade {
             throw error;
         }
 
-        System.out.println("Booked: ticket #" + ticket.getId() + ", seat " + seatNumber
-                + ", balance " + paymentService.getBalance() + " KZT.");
         return ticket.getId();
     }
 
@@ -40,8 +38,5 @@ public class CinemaFacade {
         seatService.releaseSeat(ticket.getSeatNumber());
         ticketService.removeTicket(ticketId);
 
-        System.out.println("Cancelled: ticket #" + ticketId + ", seat "
-                + ticket.getSeatNumber() + ", refund " + ticket.getPrice()
-                + " KZT, balance " + paymentService.getBalance() + " KZT.");
     }
 }
