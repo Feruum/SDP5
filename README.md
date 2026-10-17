@@ -3,8 +3,9 @@
 Talgat Madi | SE-2537
 
 A simple Java console project using the Facade pattern. It models one showing with
-5 seats, tickets costing 2000 KZT, and one wallet starting at 5000 KZT. Data is kept
-in memory and resets when the program restarts.
+5 seats and tickets costing 2000 KZT. The user enters the starting wallet balance
+and chooses each action through a Scanner menu. Data is kept in memory and resets
+when the program restarts.
 
 ## Run
 
@@ -15,16 +16,38 @@ javac -d out src/*.java
 java -cp out Main
 ```
 
-The program runs a fixed demonstration. It shows successful bookings, an occupied
-seat, insufficient funds, cancellation, rebooking after a failed payment, an
-invalid seat, an unknown ticket, and repeated cancellation.
+1. Enter a starting wallet balance, for example `5000`. Zero is allowed.
+2. Choose `1` to book, then enter a seat number from `1` to `5`.
+3. Choose `2` to cancel, then enter the ticket ID printed after booking.
+4. Choose `0` to exit.
+
+Invalid numbers are requested again. Negative starting balances are rejected.
+Invalid menu choices and failed operations return to the menu. End-of-input exits
+cleanly.
+
+## Manual example
+
+Start with `5000` KZT and enter these actions through the menu:
+
+| Action | Expected result |
+| --- | --- |
+| Book seat 1 | Ticket #1; wallet becomes 3000 KZT. |
+| Book seat 1 again | Occupied seat error; wallet stays 3000 KZT. |
+| Book seat 2 | Ticket #2; wallet becomes 1000 KZT. |
+| Book seat 3 | Insufficient funds; seat 3 is released. |
+| Cancel ticket #1 | Refund 2000 KZT; wallet becomes 3000 KZT. |
+| Book seat 3 again | Ticket #3; wallet becomes 1000 KZT. |
+
+The successful retry shows that a failed payment does not leave the seat reserved.
+Booking seat `0`, cancelling unknown ticket `999`, and cancelling ticket `1` again
+all fail without changing the current bookings or wallet.
 
 ## Pattern roles
 
 | Class | Role |
 | --- | --- |
-| `Main` | Client; calls only the facade. |
-| `CinemaFacade` | Offers `bookTicket` and `cancelTicket`. |
+| `Main` | Reads user input and calls only the facade. |
+| `CinemaFacade` | Accepts the initial balance; offers `bookTicket` and `cancelTicket`. |
 | `SeatService` | Reserves and releases validated seats. |
 | `PaymentService` | Charges and refunds the wallet. |
 | `TicketService` | Creates, finds, and removes stored tickets. |

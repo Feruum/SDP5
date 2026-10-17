@@ -4,9 +4,9 @@ public class CinemaFacade {
     private final PaymentService paymentService;
     private final TicketService ticketService;
 
-    public CinemaFacade() {
+    public CinemaFacade(int initialBalance) {
         seatService = new SeatService(5);
-        paymentService = new PaymentService(5000);
+        paymentService = new PaymentService(initialBalance);
         ticketService = new TicketService();
     }
 
@@ -37,6 +37,5 @@ public class CinemaFacade {
         paymentService.refund(ticket.getPrice());
         seatService.releaseSeat(ticket.getSeatNumber());
         ticketService.removeTicket(ticketId);
-
     }
 }

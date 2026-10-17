@@ -1,56 +1,76 @@
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
-        CinemaFacade cinema = new CinemaFacade();
         System.out.println("Cinema Ticket Booking");
-        System.out.println("5 seats. Ticket price: 2000 KZT. Initial wallet: 5000 KZT.");
+        System.out.println("5 seats. Ticket price: 2000 KZT.");
 
-        System.out.println("\nSuccessful booking: seat 1");
-        int firstTicket = cinema.bookTicket(1);
-        System.out.println("Booked: ticket #" + firstTicket + ", seat 1.");
+        try (Scanner scanner = new Scanner(System.in)) {
+            Integer initialBalance;
+            while (true) {
+                initialBalance = readNumber(scanner, "Starting wallet balance (KZT): ");
+                if (initialBalance == null) {
+                    return;
+                }
+                if (initialBalance >= 0) {
+                    break;
+                }
+                System.out.println("Balance cannot be negative.");
+            }
 
-        System.out.println("\nOccupied seat: seat 1");
-        tryBooking(cinema, 1);
+            CinemaFacade cinema = new CinemaFacade(initialBalance);
 
-        System.out.println("\nSecond successful booking: seat 2");
-        int secondTicket = cinema.bookTicket(2);
-        System.out.println("Booked: ticket #" + secondTicket + ", seat 2.");
+            while (true) {
+                System.out.println("\n1. Book ticket");
+                System.out.println("2. Cancel ticket");
+                System.out.println("0. Exit");
+                Integer choice = readNumber(scanner, "Choose: ");
+                if (choice == null) {
+                    return;
+                }
+                if (choice == 0) {
+                    System.out.println("Goodbye.");
+                    return;
+                }
 
-        System.out.println("\nInsufficient funds: seat 3");
-        tryBooking(cinema, 3);
-
-        System.out.println("\nCancel the first ticket");
-        cinema.cancelTicket(firstTicket);
-        System.out.println("Cancelled: ticket #" + firstTicket + ".");
-
-        System.out.println("\nRetry seat 3 after the failed payment");
-        int retryTicket = cinema.bookTicket(3);
-        System.out.println("Booked: ticket #" + retryTicket + ", seat 3.");
-
-        System.out.println("\nInvalid seat: seat 0");
-        tryBooking(cinema, 0);
-
-        System.out.println("\nUnknown ticket: ticket #999");
-        tryCancellation(cinema, 999);
-
-        System.out.println("\nCancel the first ticket again");
-        tryCancellation(cinema, firstTicket);
-    }
-
-    private static void tryBooking(CinemaFacade cinema, int seatNumber) {
-        try {
-            int ticketId = cinema.bookTicket(seatNumber);
-            System.out.println("Booked: ticket #" + ticketId + ", seat " + seatNumber + ".");
-        } catch (IllegalArgumentException | IllegalStateException error) {
-            System.out.println("Booking failed: " + error.getMessage());
+                try {
+                    if (choice == 1) {
+                        Integer seatNumber = readNumber(scanner, "Seat number (1-5): ");
+                        if (seatNumber == null) {
+                            return;
+                        }
+                        int ticketId = cinema.bookTicket(seatNumber);
+                        System.out.println("Booked: ticket #" + ticketId
+                                + ", seat " + seatNumber + ".");
+                    } else if (choice == 2) {
+                        Integer ticketId = readNumber(scanner, "Ticket ID: ");
+                        if (ticketId == null) {
+                            return;
+                        }
+                        cinema.cancelTicket(ticketId);
+                        System.out.println("Cancelled: ticket #" + ticketId + ".");
+                    } else {
+                        System.out.println("Choose 1, 2, or 0.");
+                    }
+                } catch (IllegalArgumentException | IllegalStateException error) {
+                    System.out.println("Error: " + error.getMessage());
+                }
+            }
         }
     }
 
-    private static void tryCancellation(CinemaFacade cinema, int ticketId) {
-        try {
-            cinema.cancelTicket(ticketId);
-            System.out.println("Cancelled: ticket #" + ticketId + ".");
-        } catch (IllegalArgumentException | IllegalStateException error) {
-            System.out.println("Cancellation failed: " + error.getMessage());
+    private static Integer readNumber(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            if (!scanner.hasNextLine()) {
+                System.out.println("Input ended.");
+                return null;
+            }
+            try {
+                return Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException error) {
+                System.out.println("Enter a valid whole number.");
+            }
         }
     }
 }
